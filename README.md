@@ -68,6 +68,8 @@ python -m src.inference.api
 
 Once running, visit `http://127.0.0.1:8000/docs` to interact with the Swagger UI.
 
+> **🌐 Live Demo:** You can access the public API endpoint here: [https://creditriskanalysis.onrender.com/docs](https://creditriskanalysis.onrender.com/docs)
+
 ### 4. Run Monitoring
 
 ```bash
