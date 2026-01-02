@@ -1,4 +1,4 @@
-# 💳 End-to-End Credit Risk MLOps Platform
+# 💳 AI-Driven Credit Decision Engine
 
 An enterprise-grade machine learning pipeline designed to predict loan default risk. This project goes beyond modeling by implementing a full MLOps lifecycle, including automated data validation, feature engineering, hyperparameter tuning, and a complete monitoring suite (Data & Model Drift).
 
@@ -68,7 +68,7 @@ python -m src.inference.api
 
 Once running, visit `http://127.0.0.1:8000/docs` to interact with the Swagger UI.
 
-> **🌐 Live Demo:** You can access the public API endpoint here: [https://creditriskanalysis.onrender.com/docs](https://creditriskanalysis.onrender.com/docs)
+> **🌐 Live Demo:** You can access the public API endpoint here: [https://credit-risk-predictor-rsyl.onrender.com/docs](Credit Decision Engine)
 
 ### 4. Run Monitoring
 
