@@ -1,4 +1,4 @@
-# 💳 AI-Driven Credit Decision Engine
+# 💳 LendGuard: AI-Driven Loan Approval & MLOps Platform
 
 An enterprise-grade machine learning pipeline designed to predict loan default risk. This project goes beyond modeling by implementing a full MLOps lifecycle, including automated data validation, feature engineering, hyperparameter tuning, and a complete monitoring suite (Data & Model Drift).
 

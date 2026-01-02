@@ -6,8 +6,8 @@ import uvicorn
 import os
 
 app = FastAPI(
-    title="Credit Risk Scoring API",
-    description="Professional API for evaluating loan default probability based on customer financial profiles.",
+    title="LendGuard: Automated Loan Approval API",
+    description="An AI-powered system for real-time loan eligibility and risk assessment.",
     version="1.0.0"
 )
 
@@ -58,7 +58,7 @@ class LoanApplication(BaseModel):
 def home():
     """Welcome page to prevent 404 on root URL."""
     return {
-        "project": "Credit Risk MLOps Platform",
+        "project": "LendGuard: Automated Loan Approval Platform",
         "status": "online",
         "documentation": "/docs",
         "version": "1.0.0"
