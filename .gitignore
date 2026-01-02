@@ -13,6 +13,8 @@ models/monitoring/*
 !models/registry/
 !models/**/*.gitkeep
 
+!models/preprocessing_pipeline.joblib
+
 # ==============================================================================
 # PYTHON & ENVIRONMENT
 # ==============================================================================
