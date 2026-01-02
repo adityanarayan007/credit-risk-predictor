@@ -11,77 +11,30 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Get the absolute path to the directory where api.py lives
+# --- 1. PATH RESOLUTION ---
+# This ensures paths work on Windows, Mac, and Linux (Render)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Build absolute paths to artifacts
-MODEL_PATH = os.path.join(BASE_DIR, "models/registry/credit_model_latest.joblib")
-PIPELINE_PATH = os.path.join(BASE_DIR, "models/preprocessing_pipeline.joblib")
+MODEL_PATH = os.path.join(BASE_DIR, "models", "registry", "credit_model_latest.joblib")
+PIPELINE_PATH = os.path.join(BASE_DIR, "models", "preprocessing_pipeline.joblib")
 
 # Load artifacts
 MODEL = joblib.load(MODEL_PATH)
 PIPELINE = joblib.load(PIPELINE_PATH)
 
-# 1. Clean Schema: 'loan_percent_income' is REMOVED from the user input
+# --- 2. INPUT SCHEMA ---
 class LoanApplication(BaseModel):
-    person_age: int = Field(
-        default=25, 
-        ge=18, le=100, 
-        description="Age of the applicant (Range: 18-100)",
-        examples=[30]
-    )
-    person_income: int = Field(
-        default=50000, 
-        gt=0, 
-        description="Annual income in USD",
-        examples=[65000]
-    )
-    person_home_ownership: str = Field(
-        default="RENT", 
-        description="Options: RENT, MORTGAGE, OWN, OTHER",
-        examples=["MORTGAGE"]
-    )
-    person_emp_length: float = Field(
-        default=2.0, 
-        ge=0, le=60, 
-        description="Years of employment (Range: 0-60)",
-        examples=[5.5]
-    )
-    loan_intent: str = Field(
-        default="EDUCATION", 
-        description="Options: EDUCATION, MEDICAL, VENTURE, PERSONAL, HOMEIMPROVEMENT, DEBTCONSOLIDATION",
-        examples=["VENTURE"]
-    )
-    loan_grade: str = Field(
-        default="B", 
-        description="Internal risk grade (A - G)(A is safest, G is riskiest)",
-        examples=["A"]
-    )
-    loan_amnt: int = Field(
-        default=10000, 
-        gt=0, 
-        description="Requested loan amount in USD",
-        examples=[5000]
-    )
-    loan_int_rate: float = Field(
-        default=11.1, 
-        ge=0, 
-        description="Agreed interest rate percentage",
-        examples=[10.5]
-    )
-    cb_person_default_on_file: str = Field(
-        default="N", 
-        description="Historical default record (Y/N)",
-        examples=["N"]
-    )
-    cb_person_cred_hist_length: int = Field(
-        default=3, 
-        ge=0, 
-        description="Length of credit history in years",
-        examples=[7]
-    )
+    person_age: int = Field(default=25, ge=18, le=100, description="Age of the applicant (18-100)")
+    person_income: int = Field(default=50000, gt=0, description="Annual income in USD")
+    person_home_ownership: str = Field(default="RENT", description="Options: RENT, MORTGAGE, OWN, OTHER")
+    person_emp_length: float = Field(default=2.0, ge=0, le=60, description="Years of employment")
+    loan_intent: str = Field(default="EDUCATION", description="Options: EDUCATION, MEDICAL, VENTURE, PERSONAL, DEBTCONSOLIDATION")
+    loan_grade: str = Field(default="B", description="Internal risk grade (A - G)")
+    loan_amnt: int = Field(default=10000, gt=0, description="Requested loan amount")
+    loan_int_rate: float = Field(default=11.1, ge=0, description="Agreed interest rate percentage")
+    cb_person_default_on_file: str = Field(default="N", description="Historical default record (Y/N)")
+    cb_person_cred_hist_length: int = Field(default=3, ge=0, description="Length of credit history")
 
-    # This class allows you to show a complete example in the Swagger UI
     model_config = {
         "json_schema_extra": {
             "example": {
@@ -99,6 +52,18 @@ class LoanApplication(BaseModel):
         }
     }
 
+# --- 3. ENDPOINTS ---
+
+@app.get("/")
+def home():
+    """Welcome page to prevent 404 on root URL."""
+    return {
+        "project": "Credit Risk MLOps Platform",
+        "status": "online",
+        "documentation": "/docs",
+        "version": "1.0.0"
+    }
+
 @app.post("/predict")
 def predict(app_data: LoanApplication):
     try:
@@ -106,14 +71,13 @@ def predict(app_data: LoanApplication):
         data_dict = app_data.model_dump()
         input_df = pd.DataFrame([data_dict])
         
-        # 2. AUTO-CALCULATION: 
-        # We calculate the missing column here so the Pipeline doesn't crash
+        # Auto-calculate derived feature
         input_df['loan_percent_income'] = input_df['loan_amnt'] / input_df['person_income']
         
-        # 3. Transform and Predict
+        # Transform using the production pipeline
         X_processed = PIPELINE.transform(input_df)
         
-        # Get names for XGBoost
+        # Extract feature names for XGBoost compatibility
         try:
             feature_names = PIPELINE.get_feature_names_out()
         except:
@@ -121,12 +85,14 @@ def predict(app_data: LoanApplication):
         
         X_final = pd.DataFrame(X_processed, columns=feature_names)
         
+        # Model Inference
         prob = float(MODEL.predict_proba(X_final)[0][1])
         prediction = 1 if prob > 0.5 else 0
         
         return {
             "application_status": "REJECT" if prediction == 1 else "APPROVE",
-            "risk_score": round(prob * 100, 2)
+            "risk_score": round(prob * 100, 2),
+            "probability": round(prob, 4)
         }
         
     except Exception as e:
