@@ -1,0 +1,14 @@
+evaluation:
+  primary_metric: f1_score
+  threshold: 0.5
+model:
+  params:
+    learning_rate: 0.2
+    max_depth: 6
+    n_estimators: 500
+    scale_pos_weight: 1
+    subsample: 0.8
+  type: XGBoost
+splitting:
+  stratify: true
+  test_size: 0.2

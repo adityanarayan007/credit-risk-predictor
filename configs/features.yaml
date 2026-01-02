@@ -1,0 +1,16 @@
+feature_engineering:
+  ratios_to_create:
+    - name: "loan_to_income_ratio"
+      numerator: "loan_amnt"
+      denominator: "person_income"
+    - name: "emp_stability_ratio"
+      numerator: "person_emp_length"
+      denominator: "person_age"
+    
+  encoding:
+    method: "one_hot" # We decided to keep it simple for the baseline
+    drop_first: true
+
+  scaling:
+    method: "standard"
+    columns: ["person_income", "loan_amnt", "loan_int_rate"]

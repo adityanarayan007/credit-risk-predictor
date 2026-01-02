@@ -1,0 +1,9 @@
+inference:
+  batch_size: 1000
+  model_path: "models/xgboost_final.joblib"
+  output_path: "data/predictions/results.csv"
+
+risk_tiers:
+  low_risk: [0.0, 0.2]
+  medium_risk: [0.2, 0.6]
+  high_risk: [0.6, 1.0]
